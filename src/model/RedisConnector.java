@@ -1,4 +1,7 @@
-package connector;
+package model;
+import java.util.List;
+import java.util.Set;
+
 import redis.clients.jedis.Jedis;
 
 public class RedisConnector {
@@ -14,11 +17,15 @@ public class RedisConnector {
 	    System.out.println("Connected to Redis");
 	}
 	
-	public void saveQuote(String id, String quote) {
-		jedis.set(id, quote);
+	public void saveQuote(String id, String string) {
+		jedis.set(id, string.toString());
 	}
 	
 	public String getQuote(String id) {
 		return jedis.get(id);
+	}
+	
+	public Set<String> getAllKeys() {
+		return jedis.keys("*");
 	}
 }
