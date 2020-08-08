@@ -26,17 +26,6 @@ public class Quote {
 	@Expose
 	private Integer v;
 	
-//	public Quote(String rc, String id,String text, String author, String genre) {
-//		//this.returnCode = rc;
-//		this.id = id;
-//		this.quoteText = text;
-//		this.quoteAuthor = author;
-//		this.quoteGenre = genre;
-//	}
-//	public Quote() {
-//		System.out.println("created Quote()");
-//	}
-
 	public String getId() {
 		return id;
 	}
@@ -80,24 +69,4 @@ public class Quote {
 	public String toString() {
 		return getQuoteText() + " - " + getQuoteAuthor();
 	}
-	
-//	public String getCode() {
-//		return returnCode;
-//	}
-//	
-//	public String getQuoteID() {
-//		return quoteID;
-//	}
-//	
-//	public String getQuoteText() {
-//		return quoteText;
-//	}
-//	
-//	public String getQuoteAuthor() {
-//		return quoteAuthor;
-//	}
-//	
-//	public String getQuoteGenre() {
-//		return quoteGenre;
-//	}
 }

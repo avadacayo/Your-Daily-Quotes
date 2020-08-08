@@ -5,88 +5,91 @@ import java.util.Scanner;
 
 import java.util.Iterator;
 
-import model.QuoteRequestor;
-import model.RedisConnector;
 import model.Quote;
+import model.RedisConnector;
 import model.ResponseQuote;
 
 import com.google.gson.Gson;
 
-public class YourDailyQuotesApplication {
+import controller.Logger;
+import controller.InvokerQuoteRequestor;
+import controller.RedisConnectorPool;
+import view.Menu;
 
+public class YourDailyQuotesApplication {
+	private static Logger logger = Logger.getInstance();
+	
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 		Scanner myObj = new Scanner(System.in);
 		String testID = "";
 		String option="";
-		while (!option.equals("4")) {
-			printMainMenu();
-			option = myObj.nextLine(); 
-			//switch to logger later
-			System.out.println("Selected option: " + option);
+		String user="";
+		String pwd="";
 		
-			if (option.equals("1")) {
-				QuoteRequestor r = new QuoteRequestor();
-							
-				System.out.println(QuoteRequestor.fetchQuote());
-				Gson gson = new Gson();
-				String jsonString = QuoteRequestor.fetchQuote();
-			    ResponseQuote responseQuote = gson.fromJson(jsonString, ResponseQuote.class);
+		
+		while (!user.equals("demo") && !user.equals("pass")) {
+			System.out.println("Enter username:"); 
+			user = myObj.nextLine();
+			System.out.println("Enter password:"); 
+			pwd = myObj.nextLine();
+		}
+		
+		while (!option.equals("4")) {
+			Menu.printMainMenu();
+			option = myObj.nextLine();
+			logger.info("Selected option: " + option, " under menu selection", "YourDailyQuotesApplication");
+			if (option.equals("1")) {				
+				InvokerQuoteRequestor q = new InvokerQuoteRequestor();
+				//attempt on command pattern applied here
+				ResponseQuote responseQuote = q.execute();
+				System.out.println(responseQuote.getQuote().toString());
 				
-				printSaveQuote();
+				Menu.printSaveQuote();
 				option = myObj.nextLine(); 
-				//switch to logger later
-				System.out.println("Selected option: " + option);
 				
 				if (option.equals("y")){
 					RedisConnector rc = new RedisConnector();
+					//commented out attempt on Object pool pattern
+//					RedisConnectorPool pool = RedisConnectorPool.getInstance();
+//					RedisConnector rc = pool.getResource();
+					
 					rc.connectRedis();
-					System.out.println(responseQuote.getQuote());
-					testID =responseQuote.getQuote().getId();
 					rc.saveQuote(responseQuote.getQuote().getId(), responseQuote.getQuote().toString());
+					rc.disconnectRedis();
 				}
+				
+				logger.info("Selected option: " + option, " under menu 1 ", "YourDailyQuotesApplication");
 			}
 		
 			else if(option.equals("2")) {
-				RedisConnector rc = new RedisConnector();
-				rc.connectRedis();
-				System.out.println("\n\n" + rc.getQuote(testID) + "\n\n");
-			}
-			
-			else if(option.equals("3")) {
 				System.out.println("Here are all the saved quotes: ");
 				RedisConnector rc = new RedisConnector();
 				rc.connectRedis();
 				Iterator<String> iterator = rc.getAllKeys().iterator();
 				while (iterator.hasNext()) {
-					System.out.println("\n\n" + rc.getQuote(iterator.next()) + "\n\n"); 
+					System.out.println("--------------------------------------");
+					System.out.println(rc.getQuote(iterator.next())); 
+					System.out.println("--------------------------------------");
 				}
 				System.out.println(rc.getAllKeys());
+				rc.disconnectRedis();
+			}
+			else if(option.equals("3")) {
 				
+			}
+			
+			else if(!option.equals("1") && !option.equals("2") && !option.equals("3") && !option.equals("4")){
+				System.out.println("Invalid Selection");
+				logger.error("Invalid Selection", " under main menu ", "YourDailyQuotesApplication");
 			}
 		}
 		myObj.close();
 		System.out.println("Thank you for using Your Daily Quote!"); 
+		logger.info("END ", " under main menu ", "YourDailyQuotesApplication");
 	}
 	
-	static void printMainMenu() {
-		System.out.println("--------------------------------------");
-		System.out.println("Select one of the following options");
-		System.out.println("1 - Get Quote");
-		System.out.println("2 - View Saved Quote");
-		System.out.println("3 - Generate Report");
-		System.out.println("4 - Exit");
-		System.out.println("--------------------------------------");
-		System.out.println("Enter option below:"); 
-		
-	}
-	
-	static void printSaveQuote() {
-		System.out.println("--------------------------------------");
-		System.out.println("Save Quote? (y/n)");
-		System.out.println("--------------------------------------");
-		System.out.println("Enter option below:"); 
-	}
+
 	
 	
 }
